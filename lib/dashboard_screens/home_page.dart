@@ -61,7 +61,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
      print("Api calling");
     try {
       var response = await http.post(
-        Uri.parse("http://192.168.1.63:10000/api/v1/generate-ticket"),
+        Uri.parse("http://192.168.1.47:10000/api/v1/generate-ticket"),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
           "source": fromCode,
@@ -207,13 +207,13 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                         child: Column(
                           children: [
                             DropdownButtonFormField<String>(
-                              dropdownColor: colorScheme.background,
+                              dropdownColor: colorScheme.secondary,
                               value: fromStation,
                               decoration: InputDecoration(
                                 labelText: "From",
                                 labelStyle: textTheme.bodyMedium,
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: colorScheme.primary),
+                                  borderSide: BorderSide(color: colorScheme.secondary),
                                 ),
                               ),
                               items: stations
@@ -231,7 +231,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             ),
                             const SizedBox(height: 10),
                             DropdownButtonFormField<String>(
-                              dropdownColor: colorScheme.background,
+                              dropdownColor: colorScheme.secondary,
                               value: toStation,
                               decoration: InputDecoration(
                                 labelText: "To",
@@ -243,7 +243,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                               items: stations
                                   .map((station) => DropdownMenuItem(
                                 value: station,
-                                child: Text(station, style: textTheme.bodyMedium),
+                                child: Text(station, style: textTheme.bodyMedium ),
                               ))
                                   .toList(),
                               onChanged: (val) {

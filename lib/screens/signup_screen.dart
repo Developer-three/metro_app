@@ -236,7 +236,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     const SizedBox(height: 15),
                     SizedBox(
                       width: 140,
-                      height: 45,
+                      height: 50,
                       child: OutlinedButton(
                         onPressed: () {
                           Navigator.pushReplacement(

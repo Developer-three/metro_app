@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:task_metro/dashboard_screens/bottom_navigation.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/ticket_DetailsScreen.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/ticket_modal.dart';
+import 'package:task_metro/db_helper/ticket_database.dart';
 import 'package:task_metro/theme/app_theme.dart';
 
 class MyTicketsScreen extends StatefulWidget {
@@ -17,14 +18,15 @@ class MyTicketsScreen extends StatefulWidget {
 
 class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  static List<TicketModel> availableTickets = [];
-  static List<TicketModel> usedTickets = [];
+  List<TicketModel> availableTickets = [];
+   List<TicketModel> usedTickets = [];
   late Timer _ticketExpiryTimer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadTicketsFromDB();
 
     if (widget.newTicket != null) {
       _addTickets(widget.newTicket!);
@@ -33,18 +35,33 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     _ticketExpiryTimer = Timer.periodic(const Duration(seconds: 30), (_) => _checkExpiredTickets());
   }
 
-  void _checkExpiredTickets() {
+
+  Future<void> _loadTicketsFromDB() async{
+    availableTickets=await TicketDatabase.instance.fetchTickets(isUsed: false);
+    usedTickets=await TicketDatabase.instance.fetchTickets(isUsed: true);
+    setState(() {
+
+    });
+  }
+
+  void _checkExpiredTickets() async{
     final now = DateTime.now();
 
-    setState(() {
       final expired = availableTickets.where((ticket) {
         final expiry = DateTime.tryParse(ticket.validTill);
         return expiry != null && expiry.isBefore(now);
       }).toList();
 
-      availableTickets.removeWhere((ticket) => expired.contains(ticket));
-      usedTickets.addAll(expired);
-    });
+      for(var ticket in expired){
+        await TicketDatabase.instance.updateTicketUsage(
+            ticket.ticketNumber, true);
+        availableTickets.remove(ticket);
+        usedTickets.add(ticket);
+      }
+      setState(() {
+
+      });
+
   }
 
   @override
@@ -68,8 +85,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     }
   }
 
-  void _addTickets(TicketModel newTicket) {
-    setState(() {
+  void _addTickets(TicketModel newTicket) async{
       List<TicketModel> newTickets = List.generate(
         newTicket.tickets,
             (index) => TicketModel(
@@ -83,11 +99,17 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
         ),
       );
 
-      newTickets = newTickets.where((newT) =>
-      !availableTickets.any((existing) => existing.ticketNumber == newT.ticketNumber)).toList();
+      for(var ticket in newTickets){
+        bool alreadyExists=availableTickets.any((t)=>
+        t.ticketNumber == ticket.ticketNumber);
+        if(!alreadyExists){
+          await TicketDatabase.instance.insertTicket(ticket);
+          availableTickets.add(ticket);
+        }
+        setState(() {
 
-      availableTickets.addAll(newTickets);
-    });
+        });
+      }
   }
 
   @override

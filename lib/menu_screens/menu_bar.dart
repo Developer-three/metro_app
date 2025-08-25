@@ -36,7 +36,8 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
                   Text(
                     "Are you sure you want to sign out?",
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 16,color: Colors.black87),
+                    // style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 24),
                   Row(

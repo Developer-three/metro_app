@@ -86,7 +86,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 80),
 
             // Send Button
             SizedBox(

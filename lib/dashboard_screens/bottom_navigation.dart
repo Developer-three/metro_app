@@ -4,7 +4,7 @@ import 'package:task_metro/dashboard_screens/map_city.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/ticket_modal.dart';
 import 'package:task_metro/menu_screens/menu_bar.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/tickets_page.dart';
-
+import 'package:task_metro/theme/app_theme.dart';
 import 'home_page.dart';
 
 class GNavigation extends StatefulWidget {
@@ -23,6 +23,7 @@ class _GNavigationState extends State<GNavigation> {
     return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        // backgroundColor: Colors.white,
         title: Text("Exit App", style: Theme.of(context).textTheme.titleLarge),
         content: Text("Are you sure you want to exit the app?", style: Theme.of(context).textTheme.bodyMedium),
         actions: [
@@ -32,7 +33,7 @@ class _GNavigationState extends State<GNavigation> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true), // Exit app
-            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           ),
         ],
       ),
@@ -69,7 +70,7 @@ class _GNavigationState extends State<GNavigation> {
             gap: 8,
             activeColor: colorScheme.primary,
             color: colorScheme.onSurfaceVariant,
-            backgroundColor: colorScheme.surface,
+            backgroundColor: colorScheme.secondary,
             tabBackgroundColor: colorScheme.primaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             selectedIndex: _selectedIndex,
