@@ -6,6 +6,9 @@ class TicketSuccesScreen extends StatefulWidget {
   final String toStation;
   final String journeyType;
   final int tickets;
+  final String orderId;
+  final String transactionId;
+  final String ticketId;
   final String qrData;
 
   const TicketSuccesScreen({
@@ -14,6 +17,9 @@ class TicketSuccesScreen extends StatefulWidget {
     required this.toStation,
     required this.journeyType,
     required this.tickets,
+    required this.orderId,
+    required this.transactionId,
+    required this.ticketId,
     required this.qrData,
   });
 
@@ -38,6 +44,9 @@ class _TicketSuccesScreenState extends State<TicketSuccesScreen> {
             toStation: widget.toStation,
             journeyType: widget.journeyType,
             tickets: widget.tickets,
+            transactionId: widget.transactionId,
+            orderId: widget.orderId,
+            ticketId: widget.ticketId,
             qrData: widget.qrData,
           ),
         ),
@@ -109,6 +118,9 @@ class _TicketSuccesScreenState extends State<TicketSuccesScreen> {
                             toStation: widget.toStation,
                             journeyType: widget.journeyType,
                             tickets: widget.tickets,
+                            transactionId: widget.transactionId,
+                            orderId: widget.orderId,
+                            ticketId: widget.ticketId,
                             qrData: widget.qrData,
                           ),
                         ),

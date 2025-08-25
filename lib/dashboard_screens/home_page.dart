@@ -2,9 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:task_metro/dashboard_screens/failed_ticket.dart';
+import 'package:task_metro/dashboard_screens/my_tickets/ticket_DetailsScreen.dart';
+import 'package:task_metro/dashboard_screens/my_tickets/ticket_modal.dart';
 import 'package:task_metro/dashboard_screens/success_ticket.dart';
 import 'package:http/http.dart' as http;
+import 'package:task_metro/theme/app_theme.dart';
 
+import '../db_helper/ticket_database.dart';
 import 'my_tickets/tickets_page.dart';
 
 class DashBoardScreen extends StatefulWidget {
@@ -68,7 +72,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           "destination": toCode,
           "quantity": tickets.toString(),
           "productId": journeyType == "One-way Journey" ? "06" : "07",
-          "paymentMode": "UPI"
+          "paymentMode": "UPI",
         }),
 
       );
@@ -81,7 +85,12 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       if (response.statusCode == 200) {
         print("$response");
         var data = json.decode(response.body);
+        print("$data");
         final qrString = data['qrData'];
+        final transactionId = data['transactionId'];
+        final orderId = data['orderId'];
+        final ticketId = data['ticketId']; // Adjust field names based on API response
+
         print("qrString is :$qrString");
 
         Navigator.push(
@@ -92,6 +101,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               toStation: toStation,
               journeyType: journeyType,
               tickets: tickets,
+              orderId: orderId,
+              ticketId: ticketId,
+              transactionId: transactionId,
               qrData: qrString,
             ),
           ),
@@ -127,28 +139,20 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     "Basai",
   ];
 
-  List<Map<String, String>> transactions = [
-    {
-      "type": "use",
-      "detail": "1 Adult Raja Ki Mandi Station",
-      "date": "01-11-2023 09:48:12"
-    },
-    {
-      "type": "purchase",
-      "detail": "1 Adult Raja Ki Mandi - Basai",
-      "date": "01-11-2023 09:47:35"
-    },
-    {
-      "type": "purchase",
-      "detail": "2 Adult Basai - Raja Ki Mandi",
-      "date": "23-10-2023 16:41:35"
-    },
-    {
-      "type": "use",
-      "detail": "1 Adult Sadat Bazar Station",
-      "date": "19-10-2023 09:48:12"
-    },
-  ];
+  List<TicketModel> availableTickets=[];
+  List<TicketModel> usedTickets=[];
+
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+    _loadTicketsFromDB();
+  }
+
+  Future<void> _loadTicketsFromDB() async {
+    availableTickets = await TicketDatabase.instance.fetchTickets(isUsed: false);
+    usedTickets = await TicketDatabase.instance.fetchTickets(isUsed: true);
+    setState(() {
+    });
+  }
 
   bool _validateStations() {
     if (fromStation == toStation) {
@@ -433,28 +437,78 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                     style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
-                  ...transactions.map((t) {
-                    return Card(
-                      color: t["type"] == "use"
-                          ? colorScheme.secondary.withOpacity(0.2)
-                          : colorScheme.surfaceVariant.withOpacity(0.3),
-                      child: ListTile(
-                        leading: Icon(
-                          t["type"] == "use" ? Icons.qr_code_scanner : Icons.check_circle_outline,
-                          color: colorScheme.primary,
+                  ...[
+                    ...availableTickets.reversed.take(5).map((ticket) {
+                      final now = DateTime.now();
+                      final expiry = DateTime.tryParse(ticket.validTill);
+                      final isActive = expiry != null && expiry.isAfter(now);
+
+                      return InkWell(onTap: (){
+                        Navigator.push(context,MaterialPageRoute
+                          (builder: (context)=>TicketDetailsScreen(ticket: ticket)));
+                      },
+                        child: Card(
+                          color: isActive
+                              ? AppTheme.thirdColor
+                              :AppTheme.thirdColor,
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.qr_code_scanner,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            title: Text(
+                              "Ticket from ${ticket.fromStation} to ${ticket.toStation}",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Text(
+                              "Valid till: ${ticket.validTill}",
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            trailing: Text(
+                              "Price:30.00\nNo: ${ticket.ticketId}",
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
-                        title: Text(t["detail"]!, style: textTheme.bodyMedium),
-                        subtitle: Text(t["date"]!, style: textTheme.bodySmall),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                    ...usedTickets.reversed.take(5).map((ticket) {
+                      return InkWell(onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder:
+                            (context)=>TicketDetailsScreen(ticket: ticket)));
+                      },
+                        child: Card(
+                          color: AppTheme.secondaryColor,
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.check_circle_outline,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            title: Text(
+                              " Ticket from ${ticket.fromStation} to ${ticket.toStation}",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Text(
+                              "Used on: ${ticket.validTill}",
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            trailing: Text(
+                              "Price: 30.00\nNo:${ticket.ticketId}",
+
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+
+
                   const SizedBox(height: 10),
-                  Center(
-                    child: Text(
-                      "Show more",
-                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
-                    ),
-                  ),
+                 ]
                 ],
               ),
             ),

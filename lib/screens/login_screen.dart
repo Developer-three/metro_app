@@ -179,7 +179,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         MaterialPageRoute(
                           builder: (context) => GNavigation(
                             selectedIndex: 0,
-                            newticket: null,
                           ),
                         ),
                       );

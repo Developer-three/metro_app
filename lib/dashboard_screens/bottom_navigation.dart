@@ -9,8 +9,7 @@ import 'home_page.dart';
 
 class GNavigation extends StatefulWidget {
   final int selectedIndex;
-  final TicketModel? newticket;
-  GNavigation({super.key, required this.selectedIndex, required this.newticket});
+  GNavigation({super.key, required this.selectedIndex,});
 
   @override
   State<StatefulWidget> createState() => _GNavigationState();
@@ -54,7 +53,7 @@ class _GNavigationState extends State<GNavigation> {
 
     final List<Widget> _screens = [
       const DashBoardScreen(),
-      MyTicketsScreen(newTicket: widget.newticket),
+      MyTicketsScreen(),
       MapScreen(),
       ProfileMenuScreen(),
     ];

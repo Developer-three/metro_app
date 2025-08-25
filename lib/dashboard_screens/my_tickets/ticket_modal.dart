@@ -3,7 +3,9 @@ class TicketModel {
   final String toStation;
   final String journeyType;
   final int tickets;
-  final String ticketNumber;
+  final String ticketId;
+  final String orderId;
+  final String transactionId;
   final String validTill;
   final String qrData;
   bool isUsed=false;
@@ -13,10 +15,12 @@ class TicketModel {
     required this.toStation,
     required this.journeyType,
     required this.tickets,
-    required this.ticketNumber,
+    required this.ticketId,
+    required this.orderId,
+    required this.transactionId,
     required this.validTill,
     required this.qrData,
-    this.isUsed=false
+    this.isUsed=false,
   });
   Map<String,dynamic>toMap(){
     return{
@@ -24,7 +28,9 @@ class TicketModel {
       'toStation':toStation,
       'journeyType':journeyType,
       'tickets':tickets,
-      'ticketNumber':ticketNumber,
+      'ticketId':ticketId,
+      'orderId':orderId,
+      'transactionId':transactionId,
       'validTill':validTill,
       'qrdata':qrData,
       'isUsed':isUsed ? 1:0,
@@ -36,7 +42,9 @@ class TicketModel {
       toStation: map['toStation'],
       journeyType: map['journeyType'],
       tickets: map['tickets'],
-      ticketNumber: map['ticketNumber'],
+      ticketId: map['ticketId'],
+      orderId: map['orderId'],
+      transactionId: map['transactionId'],
       validTill:map['validTill'],
       qrData: map['qrData'],
       isUsed: map['isUsed']==1,

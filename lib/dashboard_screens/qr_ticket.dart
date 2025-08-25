@@ -1,16 +1,19 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:task_metro/dashboard_screens/bottom_navigation.dart';
 import 'package:task_metro/theme/app_theme.dart';
-
+import '../db_helper/ticket_database.dart';
 import 'my_tickets/ticket_modal.dart';
 
-class QRTicketScreen extends StatelessWidget {
+class QRTicketScreen extends StatefulWidget {
   final String fromStation;
   final String toStation;
   final String journeyType;
   final int tickets;
+  final String ticketId;
+  final String orderId;
+  final String transactionId;
   final String qrData;
 
   const QRTicketScreen({
@@ -19,18 +22,57 @@ class QRTicketScreen extends StatelessWidget {
     required this.toStation,
     required this.journeyType,
     required this.tickets,
+    required this.transactionId,
+    required this.orderId,
+    required this.ticketId,
     required this.qrData,
   });
+
+  @override
+  State<QRTicketScreen> createState() => _QRTicketScreenState();
+}
+
+class _QRTicketScreenState extends State<QRTicketScreen> {
+  late final String validTill;
+  bool _ticketSaved = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ CHANGED: use formatted date (DD.MM.YYYY) instead of ISO string
+    final now = DateTime.now();
+    validTill = DateFormat('dd-MM-yyyy HH:mm')
+        .format(DateTime.now().add(const Duration(seconds: 10)));
+
+    _saveTicket();
+  }
+
+  Future<void> _saveTicket() async {
+    if (_ticketSaved) return;
+
+    _ticketSaved = true; // Avoid double-insertion
+
+    final ticket = TicketModel(
+      fromStation: widget.fromStation,
+      toStation: widget.toStation,
+      journeyType: widget.journeyType,
+      tickets: widget.tickets,
+      ticketId: widget.ticketId,
+      transactionId: widget.transactionId,
+      orderId: widget.orderId,
+      validTill: validTill, // ✅ CHANGED: Corrected formatting
+      qrData: widget.qrData,
+    );
+
+    await TicketDatabase.instance.insertTicket(ticket);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
-
-    final DateTime now = DateTime.now();
-    final String ticketNumber = (Random().nextInt(9000) + 1000).toString();
-    final String validTill = "${now.day}.${now.month}.${now.year}";
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -48,7 +90,7 @@ class QRTicketScreen extends StatelessWidget {
                   children: [
                     const SizedBox(height: 29),
                     QrImageView(
-                      data: qrData,
+                      data: widget.qrData,
                       version: QrVersions.auto,
                       size: 320,
                       backgroundColor: colorScheme.background,
@@ -72,7 +114,7 @@ class QRTicketScreen extends StatelessWidget {
                               Icon(Icons.location_pin, size: 20, color: colorScheme.primary),
                               const SizedBox(width: 6),
                               Text(
-                                fromStation,
+                                widget.fromStation,
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface,
@@ -86,7 +128,7 @@ class QRTicketScreen extends StatelessWidget {
                               Icon(Icons.location_pin, size: 20, color: colorScheme.primary),
                               const SizedBox(width: 6),
                               Text(
-                                toStation,
+                                widget.toStation,
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface,
@@ -96,7 +138,7 @@ class QRTicketScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            "Ticket Type: $journeyType",
+                            "Ticket Type: ${widget.journeyType}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -105,7 +147,7 @@ class QRTicketScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Number of Tickets: $tickets",
+                            "Number of Tickets: ${widget.tickets}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -114,7 +156,7 @@ class QRTicketScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Valid till: $validTill",
+                            "Valid till: $validTill", // ✅ CHANGED
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -123,7 +165,25 @@ class QRTicketScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Ticket No: $ticketNumber",
+                            "Ticket No: ${widget.ticketId}",
+                            style: textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                              wordSpacing: 2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Transaction ID: ${widget.transactionId}",
+                            style: textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                              wordSpacing: 2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Order ID: ${widget.orderId}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -167,19 +227,10 @@ class QRTicketScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
-                    final ticket = TicketModel(
-                      fromStation: fromStation,
-                      toStation: toStation,
-                      journeyType: journeyType,
-                      tickets: tickets,
-                      ticketNumber: ticketNumber,
-                      validTill: validTill,
-                      qrData: qrData
-                    );
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GNavigation(selectedIndex: 1, newticket: ticket),
+                        builder: (context) => GNavigation(selectedIndex: 1),
                       ),
                           (route) => false,
                     );
@@ -193,7 +244,7 @@ class QRTicketScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

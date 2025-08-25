@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:task_metro/dashboard_screens/bottom_navigation.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/ticket_DetailsScreen.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/ticket_modal.dart';
@@ -8,9 +8,7 @@ import 'package:task_metro/db_helper/ticket_database.dart';
 import 'package:task_metro/theme/app_theme.dart';
 
 class MyTicketsScreen extends StatefulWidget {
-  final TicketModel? newTicket;
-
-  const MyTicketsScreen({super.key, this.newTicket});
+  const MyTicketsScreen({super.key});
 
   @override
   State<MyTicketsScreen> createState() => _MyTicketsScreenState();
@@ -19,7 +17,8 @@ class MyTicketsScreen extends StatefulWidget {
 class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<TicketModel> availableTickets = [];
-   List<TicketModel> usedTickets = [];
+  List<TicketModel> allTickets = [];
+  List<TicketModel> usedTickets = [];
   late Timer _ticketExpiryTimer;
 
   @override
@@ -28,88 +27,46 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     _tabController = TabController(length: 2, vsync: this);
     _loadTicketsFromDB();
 
-    if (widget.newTicket != null) {
-      _addTickets(widget.newTicket!);
-    }
-
-    _ticketExpiryTimer = Timer.periodic(const Duration(seconds: 30), (_) => _checkExpiredTickets());
-  }
-
-
-  Future<void> _loadTicketsFromDB() async{
-    availableTickets=await TicketDatabase.instance.fetchTickets(isUsed: false);
-    usedTickets=await TicketDatabase.instance.fetchTickets(isUsed: true);
-    setState(() {
-
-    });
-  }
-
-  void _checkExpiredTickets() async{
-    final now = DateTime.now();
-
-      final expired = availableTickets.where((ticket) {
-        final expiry = DateTime.tryParse(ticket.validTill);
-        return expiry != null && expiry.isBefore(now);
-      }).toList();
-
-      for(var ticket in expired){
-        await TicketDatabase.instance.updateTicketUsage(
-            ticket.ticketNumber, true);
-        availableTickets.remove(ticket);
-        usedTickets.add(ticket);
-      }
-      setState(() {
-
-      });
-
+    _ticketExpiryTimer = Timer.periodic(const Duration(seconds: 10), (_) => _checkExpiredTickets());
   }
 
   @override
-  void didUpdateWidget(covariant MyTicketsScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.newTicket != null) {
-      bool allAlreadyAdded = true;
-
-      for (int i = 0; i < widget.newTicket!.tickets; i++) {
-        final newTicketNumber = '${widget.newTicket!.ticketNumber}-$i';
-        if (!availableTickets.any((ticket) => ticket.ticketNumber == newTicketNumber)) {
-          allAlreadyAdded = false;
-          break;
-        }
-      }
-
-      if (!allAlreadyAdded) {
-        _addTickets(widget.newTicket!);
-      }
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadTicketsFromDB(); // Refresh when screen becomes active
   }
 
-  void _addTickets(TicketModel newTicket) async{
-      List<TicketModel> newTickets = List.generate(
-        newTicket.tickets,
-            (index) => TicketModel(
-          fromStation: newTicket.fromStation,
-          toStation: newTicket.toStation,
-          tickets: 1,
-          journeyType: newTicket.journeyType,
-          validTill: newTicket.validTill,
-          ticketNumber: '${newTicket.ticketNumber}-$index',
-              qrData: newTicket.qrData,
-        ),
-      );
+  Future<void> _loadTicketsFromDB() async {
+    availableTickets = await TicketDatabase.instance.fetchTickets(isUsed: false);
+    usedTickets = await TicketDatabase.instance.fetchTickets(isUsed: true);
+    allTickets = await TicketDatabase.instance.getAllTickets();
 
-      for(var ticket in newTickets){
-        bool alreadyExists=availableTickets.any((t)=>
-        t.ticketNumber == ticket.ticketNumber);
-        if(!alreadyExists){
-          await TicketDatabase.instance.insertTicket(ticket);
-          availableTickets.add(ticket);
-        }
-        setState(() {
+    setState(() {});
+  }
 
-        });
+  void _checkExpiredTickets() async {
+    final now = DateTime.now();
+    for (var ticket in availableTickets) {
+      print('Checking ticket validTill: ${ticket.validTill}');
+    }
+
+    final expired = availableTickets.where((ticket) {
+      try {
+        // *** FIX: Use DateTime.parse directly instead of split ***
+        final expiry = DateFormat('yyyy-MM-dd HH:mm').parse(ticket.validTill);
+        return expiry.isBefore(now);
+      } catch (e) {
+        print('Error parsing date for ticket: ${ticket.ticketId}, error: $e');
+        return false;
       }
+    }).toList();
+
+    for (var ticket in expired) {
+      await TicketDatabase.instance.updateTicketUsage(ticket.transactionId, true);
+      availableTickets.remove(ticket);
+      usedTickets.add(ticket);
+    }
+    setState(() {});
   }
 
   @override
@@ -143,10 +100,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GNavigation(
-                      selectedIndex: 0,
-                      newticket: null,
-                    ),
+                    builder: (context) => GNavigation(selectedIndex: 0),
                   ),
                       (route) => false,
                 );
@@ -174,14 +128,14 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     final textTheme = theme.textTheme;
 
     return InkWell(
-       onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TicketDetailsScreen(ticket: ticket),
-        ),
-      );
-    },
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TicketDetailsScreen(ticket: ticket),
+          ),
+        );
+      },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(16),
@@ -205,10 +159,11 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("Unused Tickets: 1", style: textTheme.bodySmall),
-                Text(ticket.journeyType, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                Text("Valid Till: ${ticket.validTill}", style: textTheme.bodySmall),
-                Text("Ticket No: ${ticket.ticketNumber}", style: textTheme.bodySmall),
+                Text("Status: ${ticket.isUsed == 1 ? "Used" : "Unused"}",
+                    style: textTheme.bodySmall),
+                Text(ticket.journeyType, style: textTheme.bodyMedium?.copyWith(fontSize: 12)),
+                 Text("Valid Till: ${ticket.validTill}", style: textTheme.bodySmall),
+                 Text("Ticket No: ${ticket.ticketId}", style: textTheme.bodySmall),
               ],
             ),
           ],

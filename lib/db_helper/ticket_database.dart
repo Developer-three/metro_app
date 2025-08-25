@@ -12,7 +12,7 @@ class TicketDatabase {
   Future<Database> get database async {
     if (_database != null) return _database!;
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'tickets.db');
+    final path = join(dbPath, 'DbTickets.db');
 
     _database = await openDatabase(path, version: 1, onCreate: _createDB);
     return _database!;
@@ -20,13 +20,15 @@ class TicketDatabase {
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE tickets (
+      CREATE TABLE DbTickets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         fromStation TEXT,
         toStation TEXT,
         journeyType TEXT,
         tickets INTEGER,
-        ticketNumber TEXT,
+        ticketId TEXT,
+        orderId TEXT,
+        transactionId TEXT,
         validTill TEXT,
         qrData TEXT,
         isUsed INTEGER
@@ -36,23 +38,33 @@ class TicketDatabase {
 
   Future<void> insertTicket(TicketModel ticket) async {
     final db = await instance.database;
-    await db.insert('tickets', ticket.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('DbTickets', ticket.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<TicketModel>> fetchTickets({bool? isUsed}) async {
     final db = await instance.database;
     final whereClause = isUsed != null ? 'WHERE isUsed = ${isUsed ? 1 : 0}' : '';
-    final result = await db.rawQuery('SELECT * FROM tickets $whereClause');
+    final result = await db.rawQuery('SELECT * FROM DbTickets $whereClause');
     return result.map((map) => TicketModel.fromMap(map)).toList();
   }
 
-  Future<void> updateTicketUsage(String ticketNumber, bool used) async {
+  Future<List<TicketModel>> getAllTickets() async {
     final db = await instance.database;
-    await db.update(
-      'tickets',
-      {'isUsed': used ? 1 : 0},
-      where: 'ticketNumber = ?',
-      whereArgs: [ticketNumber],
-    );
+    // final whereClause = isUsed != null ? 'WHERE isUsed = ${isUsed ? 1 : 0}' : '';
+    final result = await db.rawQuery('SELECT * FROM DbTickets');
+    return result.map((map) => TicketModel.fromMap(map)).toList();
   }
+
+  // ✅ UPDATED METHOD IN DATABASE
+  Future<void> updateTicketUsage(String transactionId, bool isUsed) async {
+    final db = await instance.database;
+    final result = await db.update(
+      'DbTickets',
+      {'isUsed': isUsed ? 1 : 0},
+      where: 'transactionId = ?',
+      whereArgs: [transactionId],
+    );
+    print('Updated $result rows for transactionId=$transactionId'); // ✅ Log for debugging
+  }
+
 }
