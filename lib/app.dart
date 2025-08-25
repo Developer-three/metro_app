@@ -1,12 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:task_metro/screens/otp_screen.dart';
-import 'package:task_metro/theme/theme_app.dart';
-import 'forgot_password/enter_mobile_screen.dart';
-import'routes/app_routes.dart';
+import 'package:task_metro/theme/app_theme.dart';
+import 'routes/app_routes.dart';
 import 'screens/login_screen.dart';
+import 'theme/theme_app.dart'; // ✅ Import the custom theme file
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
@@ -14,14 +12,11 @@ class MyApp extends StatelessWidget{
     return MaterialApp(
       title: 'Agra Metro',
       debugShowCheckedModeBanner: false,
-      theme: lightTheme,           // 👈 your custom light theme
-      darkTheme: darkTheme,        // 👈 your custom dark theme
-      themeMode: ThemeMode.system, // 👈 auto-switches based on device
+      theme: AppTheme.lightTheme, // ✅ Apply your custom theme
       initialRoute: AppRoutes.login,
       routes: {
-        AppRoutes.login:(context)=> const LoginScreen()
+        AppRoutes.login: (context) => const LoginScreen(),
       },
     );
   }
-
 }

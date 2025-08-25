@@ -16,20 +16,20 @@ class _OTPScreenState extends State<OTPScreen> {
   int _secondRemaining = 60;
   Timer? _timer;
 
-  bool isButtonActive=false;
+  bool isButtonActive = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
   }
-  void _checkOtpFileds(){
+
+  void _checkOtpFileds() {
     setState(() {
-      isButtonActive=otpControllers.every((controller)=>controller.text.isNotEmpty);
+      isButtonActive =
+          otpControllers.every((controller) => controller.text.isNotEmpty);
     });
-
   }
-
 
   void _startTimer() {
     _secondRemaining = 60;
@@ -52,36 +52,37 @@ class _OTPScreenState extends State<OTPScreen> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 60),
+              Icon(Icons.check_circle,
+                  color: Colors.green, size: 60),
               SizedBox(height: 20),
               Text(
                 "Your Account is\nSuccessfully Created",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
         ),
       );
-      Future.delayed(Duration(seconds: 2),(){
+      Future.delayed(Duration(seconds: 2), () {
         navigate();
       });
-
-
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Invalid OTP")));
     }
   }
-  void navigate(){
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
-  }
 
+  void navigate() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
 
   void _resendOTP() {
     for (var controller in otpControllers) {
@@ -104,13 +105,21 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("SMS Code", style: TextStyle(fontSize: 18,color: Colors.orange)),
+            Text(
+              "SMS Code",
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.primaryColor,
+              ),
+            ),
             SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -123,11 +132,12 @@ class _OTPScreenState extends State<OTPScreen> {
                     maxLength: 1,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
-                    onChanged: (value){
-                      if(value.isNotEmpty){
-                        if(index<5){
-                          FocusScope.of(context).requestFocus(focusNodes[index+1]);
-                        }else{
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        if (index < 5) {
+                          FocusScope.of(context)
+                              .requestFocus(focusNodes[index + 1]);
+                        } else {
                           FocusScope.of(context).unfocus();
                         }
                       }
@@ -137,15 +147,18 @@ class _OTPScreenState extends State<OTPScreen> {
                       counterText: "",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                        BorderSide(color: Colors.orange, width: 2),
+                        borderSide: BorderSide(
+                          color: theme.primaryColor,
+                          width: 2,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                        BorderSide(color: Colors.orange, width: 2),
+                        borderSide: BorderSide(
+                          color: theme.primaryColor,
+                          width: 2,
+                        ),
                       ),
-
                     ),
                   ),
                 );
@@ -161,66 +174,69 @@ class _OTPScreenState extends State<OTPScreen> {
                   child: CircularProgressIndicator(
                     value: _secondRemaining / 60,
                     strokeWidth: 6,
-                    color: Colors.orange,
-                    backgroundColor: Colors.grey.shade300,
+                    color: theme.primaryColor,
+                    backgroundColor: theme.disabledColor.withOpacity(0.2),
                   ),
                 ),
-                Text("$_secondRemaining",
-                    style:
-                    TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                Text(
+                  "$_secondRemaining",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 40),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isButtonActive?Colors.orange:Colors.orange.shade600,
+                backgroundColor: isButtonActive
+                    ? theme.primaryColor
+                    : theme.disabledColor,
                 minimumSize: Size(280, 60),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
-              onPressed:isButtonActive? _verifyOTP:null,
+              onPressed: isButtonActive ? _verifyOTP : null,
               child: Text(
                 "Verify",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                style: theme.textTheme.labelLarge,
               ),
             ),
             SizedBox(height: 40),
-
-            // ✅ Updated Resend OTP Button
-            if(_secondRemaining==0)
-            ElevatedButton(
-              onPressed: _resendOTP,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _secondRemaining > 0
-                    ? Colors.grey.shade400
-                    : Colors.white,
-                minimumSize: Size(280, 50),
-                side: BorderSide(color: Colors.orange),
+            if (_secondRemaining == 0)
+              OutlinedButton(
+                onPressed: _resendOTP,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: Size(280, 50),
+                  side: BorderSide(color: theme.primaryColor),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  "Resend OTP",
+                  style: TextStyle(color: theme.primaryColor),
+                ),
               ),
-              child: _secondRemaining > 0
-                  ? Text(
-                "Resend OTP in $_secondRemaining sec",
-                style: TextStyle(color: Colors.grey.shade700),
-              )
-                  : Text(
-                "Resend OTP",
-                style: TextStyle(color: Colors.orange),
-              ),
-            ),
-
             SizedBox(height: 60),
             OutlinedButton(
-              style: ElevatedButton.styleFrom(
+              style: OutlinedButton.styleFrom(
                 minimumSize: Size(200, 50),
-                side: BorderSide(color: Colors.orange, width: 3),
+                side: BorderSide(color: theme.primaryColor, width: 2.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
               onPressed: () {
                 Navigator.pop(context);
               },
               child: Text(
                 "Cancel",
-                style: TextStyle(color: Colors.orange, fontSize: 18),
+                style: TextStyle(
+                  color: theme.primaryColor,
+                  fontSize: 18,
+                ),
               ),
             ),
           ],

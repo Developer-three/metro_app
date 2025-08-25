@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:task_metro/menu_screens/contact_us.dart';
+import 'package:task_metro/menu_screens/transaction_history.dart';
 import 'package:task_metro/screens/login_screen.dart';
+import 'package:task_metro/theme/app_theme.dart';
 
 class ProfileMenuScreen extends StatefulWidget {
   const ProfileMenuScreen({Key? key}) : super(key: key);
@@ -12,108 +14,84 @@ class ProfileMenuScreen extends StatefulWidget {
 class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
   bool darkMode = false;
 
-
   void _showSignOutDialog(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon
-                const Icon(Icons.help_outline,
-                    color: Colors.orange, size: 40),
-                const SizedBox(height: 16),
+        return Theme(
+          data: AppTheme.lightTheme,
 
-                // Text
-                const Text(
-                  "Are you sure you want to sign out?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary, size: 40),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Are you sure you want to sign out?",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Yes sign out
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.orange),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Theme.of(context).colorScheme.primary),
                         ),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Signed out")),
+                          );
+                        },
+                        child: Text("Yes, sign out", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                       ),
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(
-                                builder: (context)=>LoginScreen())); // close dialog
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Signed out")),
-                        );
-                      },
-                      child: const Text(
-                        "Yes, sign out",
-                        style: TextStyle(color: Colors.orange),
-                      ),
-                    ),
-
-                    // No go back
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                         ),
+                        onPressed: () => Navigator.pop(context),
+                        child: Text("No, go back", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context); // close dialog
-                      },
-                      child: const Text(
-                        "No, go back",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                )
-              ],
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         );
       },
     );
+
   }
 
   @override
   Widget build(BuildContext context) {
-    final lightTheme = ThemeData.light();
-    final darkTheme = ThemeData.dark();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Theme(
-      data: darkMode ? darkTheme : lightTheme,
+      data: darkMode ? ThemeData.dark() : ThemeData.light(),
       child: Builder(
         builder: (context) => Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: Stack(
             children: [
               // Orange header
               Container(
                 height: 250,
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30),
                   ),
@@ -121,16 +99,16 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 50),
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 35,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 50, color: Colors.orange),
+                      backgroundColor: colorScheme.onPrimary,
+                      child: Icon(Icons.person, size: 50, color: colorScheme.primary),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       "Ramesh Kumar",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -146,8 +124,8 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    border:Border.all(color: Colors.white,width: 2),
-                     color: Theme.of(context).cardColor,
+                    border: Border.all(color: colorScheme.onPrimary, width: 2),
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       BoxShadow(
@@ -160,10 +138,10 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
                   child: Column(
                     children: [
                       _buildInfoRow(Icons.phone_android, "+91 1234-56789"),
-                      _divider(),
+                      _divider(context),
                       _buildInfoRow(Icons.email_outlined, "abcde@gmail.com"),
-                      _divider(),
-                      _buildInfoRow(Icons.lock_outline, "***********",),
+                      _divider(context),
+                      _buildInfoRow(Icons.lock_outline, "***********"),
                     ],
                   ),
                 ),
@@ -175,63 +153,54 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.history, color: Theme.of(context).iconTheme.color),
-                      title: Text("Transaction History", style: Theme.of(context).textTheme.bodyLarge),
-                      onTap: () {},
+                      leading: Icon(Icons.history, color: theme.iconTheme.color),
+                      title: Text("Transaction History", style: theme.textTheme.bodyLarge),
+                      onTap: () {
+                        Navigator.push(context,MaterialPageRoute(builder: (context)=>TransactionHistoryScreen()));
+                      },
                     ),
                     SwitchListTile(
                       value: darkMode,
-                      onChanged: (val) {
-                        setState(() {
-                          darkMode = val;
-                        });
-                      },
-                      secondary: Icon(Icons.dark_mode, color: Theme.of(context).iconTheme.color),
-                      title: Text("Dark Mode", style: Theme.of(context).textTheme.bodyLarge),
+                      onChanged: (val) => setState(() => darkMode = val),
+                      secondary: Icon(Icons.dark_mode, color: theme.iconTheme.color),
+                      title: Text("Dark Mode", style: theme.textTheme.bodyLarge),
                     ),
                     ListTile(
-                      leading: Icon(Icons.contact_support, color: Theme.of(context).iconTheme.color),
-                      title: Text("Contact Us", style: Theme.of(context).textTheme.bodyLarge),
+                      leading: Icon(Icons.contact_support, color: theme.iconTheme.color),
+                      title: Text("Contact Us", style: theme.textTheme.bodyLarge),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ContactUsPage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => ContactUsPage()));
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.help_outline, color: Theme.of(context).iconTheme.color),
-                      title: Text("Help", style: Theme.of(context).textTheme.bodyLarge),
+                      leading: Icon(Icons.help_outline, color: theme.iconTheme.color),
+                      title: Text("Help", style: theme.textTheme.bodyLarge),
                       onTap: () {},
                     ),
                     const Spacer(),
 
-                    // Sign out button
+                    // Sign Out Button
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.orange,width: 2),
+                          side: BorderSide(color: colorScheme.primary, width: 2),
                           minimumSize: const Size(230, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        onPressed: () {
-                          _showSignOutDialog(context);
-                        },
+                        onPressed: () => _showSignOutDialog(context),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               "Sign Out",
-                              style: TextStyle(
-                                  color: Theme.of(context).iconTheme.color,
-                                fontSize: 16,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.iconTheme.color,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(
-                              Icons.logout,
-                            ),
+                            Icon(Icons.logout, color: theme.iconTheme.color),
                           ],
                         ),
                       ),
@@ -247,25 +216,26 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       child: Row(
         children: [
-          Icon(icon),
+          Icon(icon, color: theme.iconTheme.color),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              // style: Theme.of(context).textTheme.bodyLarge,
+              style: theme.textTheme.bodyLarge,
             ),
           ),
-           Icon(Icons.edit, size: 20),
+          Icon(Icons.edit, size: 20, color: theme.iconTheme.color),
         ],
       ),
     );
   }
 
-  Widget _divider() {
+  Widget _divider(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       height: 1,

@@ -26,8 +26,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -37,14 +40,14 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Welcome",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -52,7 +55,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // First Name
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: _inputDecoration("First Name", Icons.person_outline),
+                  decoration: _inputDecoration("First Name", Icons.person_outline, theme),
                   keyboardType: TextInputType.name,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -72,7 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Last Name
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: _inputDecoration("Last Name", Icons.person),
+                  decoration: _inputDecoration("Last Name", Icons.person, theme),
                   keyboardType: TextInputType.name,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -92,7 +95,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Phone Number
                 TextFormField(
                   controller: _phoneController,
-                  decoration: _inputDecoration("Phone", Icons.phone),
+                  decoration: _inputDecoration("Phone", Icons.phone, theme),
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -112,7 +115,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Email
                 TextFormField(
                   controller: _emailController,
-                  decoration: _inputDecoration("Email", Icons.email_outlined),
+                  decoration: _inputDecoration("Email", Icons.email_outlined, theme),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -132,10 +135,13 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: _inputDecoration(
                     "Password",
                     Icons.lock_outline,
+                    theme,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: colorScheme.onSurface.withOpacity(0.5),
                       ),
                       onPressed: () {
                         setState(() {
@@ -163,30 +169,55 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        // All fields are valid
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("OTP Sent Successfully on your Number",style: TextStyle(
-                              fontSize: 18,fontWeight:FontWeight.bold,color: Colors.green),)),
-
+                          SnackBar(
+                            content: const Text(
+                              "OTP Sent Successfully on your Number",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: Colors.green.shade700, // success green color
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
                         );
-                        Navigator.push(context,MaterialPageRoute(builder: (_)=>OTPScreen()));
-                      }else{
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => OTPScreen()));
+                      } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("All fields are required",style: TextStyle(
-                              fontSize: 18,fontWeight:FontWeight.bold,color: Colors.red),)),
-
+                          SnackBar(
+                            content: const Text(
+                              "All fields are required",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: colorScheme.error,
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
                         );
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Sign Up",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -196,9 +227,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Already a member? Login
                 Column(
                   children: [
-                    const Text(
+                    Text(
                       "Already a member?",
-                      style: TextStyle(color: Colors.black54, fontSize: 14),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.7),
+                      ),
                     ),
                     const SizedBox(height: 15),
                     SizedBox(
@@ -208,18 +241,22 @@ class _SignupScreenState extends State<SignupScreen> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const LoginScreen()),
                           );
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.orange, width: 2),
+                          side: BorderSide(color: colorScheme.primary, width: 2),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Login",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -233,26 +270,28 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon, {Widget? suffixIcon}) {
+  InputDecoration _inputDecoration(String hint, IconData icon, ThemeData theme,
+      {Widget? suffixIcon}) {
+    final colorScheme = theme.colorScheme;
     return InputDecoration(
-      prefixIcon: Icon(icon, color: Colors.orange),
+      prefixIcon: Icon(icon, color: colorScheme.primary),
       suffixIcon: suffixIcon,
       hintText: hint,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.orange),
+        borderSide: BorderSide(color: colorScheme.primary),
         borderRadius: BorderRadius.circular(8),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.orange, width: 2),
+        borderSide: BorderSide(color: colorScheme.primary, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
       errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.red),
+        borderSide: BorderSide(color: colorScheme.error),
         borderRadius: BorderRadius.circular(8),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.red, width: 2),
+        borderSide: BorderSide(color: colorScheme.error, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
     );

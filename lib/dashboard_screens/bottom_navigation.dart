@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:task_metro/dashboard_screens/map_city.dart';
+import 'package:task_metro/dashboard_screens/my_tickets/ticket_modal.dart';
 import 'package:task_metro/menu_screens/menu_bar.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/tickets_page.dart';
 
@@ -8,42 +9,36 @@ import 'home_page.dart';
 
 class GNavigation extends StatefulWidget {
   final int selectedIndex;
-  GNavigation({super.key, required this.selectedIndex});
+  final TicketModel? newticket;
+  GNavigation({super.key, required this.selectedIndex, required this.newticket});
 
   @override
   State<StatefulWidget> createState() => _GNavigationState();
 }
 
 class _GNavigationState extends State<GNavigation> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
-  final List<Widget> _screens = [
-    const DashBoardScreen(),
-    const MyTicketsScreen(), // Create this screen or import
-    MapScreen(),
-    ProfileMenuScreen(),
-
-  ];
   Future<bool> _onWillPop() async {
     return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Are you sure you want to exit the app?"),
+        title: Text("Exit App", style: Theme.of(context).textTheme.titleLarge),
+        content: Text("Are you sure you want to exit the app?", style: Theme.of(context).textTheme.bodyMedium),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false), // Don't exit
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true), // Exit app
-            child: const Text("Exit"),
+            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
-    ) ?? false; // return false if dialog is dismissed
+    ) ??
+        false; // return false if dialog is dismissed
   }
-
 
   @override
   void initState() {
@@ -53,19 +48,29 @@ class _GNavigationState extends State<GNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final List<Widget> _screens = [
+      const DashBoardScreen(),
+      MyTicketsScreen(newTicket: widget.newticket),
+      MapScreen(),
+      ProfileMenuScreen(),
+    ];
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: _screens[_selectedIndex],
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
           child: GNav(
             gap: 8,
-            activeColor: Colors.orange,
-            color: Colors.grey[700],
-            backgroundColor: Colors.white,
-            tabBackgroundColor: Colors.orange.shade100,
+            activeColor: colorScheme.primary,
+            color: colorScheme.onSurfaceVariant,
+            backgroundColor: colorScheme.surface,
+            tabBackgroundColor: colorScheme.primaryContainer,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             selectedIndex: _selectedIndex,
             onTabChange: (index) {
@@ -73,7 +78,7 @@ class _GNavigationState extends State<GNavigation> {
                 _selectedIndex = index;
               });
             },
-            tabs: const [
+            tabs: [
               GButton(icon: Icons.home, text: 'Home'),
               GButton(icon: Icons.confirmation_num, text: 'My Tickets'),
               GButton(icon: Icons.map, text: 'Line Map'),

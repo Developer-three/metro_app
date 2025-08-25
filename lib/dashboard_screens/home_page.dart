@@ -5,8 +5,6 @@ import 'package:task_metro/dashboard_screens/failed_ticket.dart';
 import 'package:task_metro/dashboard_screens/success_ticket.dart';
 import 'package:http/http.dart' as http;
 
-
-
 import 'my_tickets/tickets_page.dart';
 
 class DashBoardScreen extends StatefulWidget {
@@ -17,7 +15,7 @@ class DashBoardScreen extends StatefulWidget {
 }
 
 class _DashBoardScreenState extends State<DashBoardScreen> {
-  int _selectIndex=0;
+  int _selectIndex = 0;
   final List<Widget> _screens = [
     Center(child: Text("Home ")),
     Center(child: Text("My Tickets")),
@@ -27,7 +25,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   String fromStation = "Sikandra";
   String toStation = "Hing ki Mandi";
   int tickets = 1;
-  String journeyType = "One-way";
+  String journeyType = "One-way Journey";
 
   final Map<String, String> stationCodes = {
     "Sikandra": "01",
@@ -43,10 +41,10 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     "Sadat Bazar": "11",
     "Basai": "12",
   };
-  bool isloading=false;
-
+  bool isloading = false;
 
   Future<void> sendTicketRequest() async {
+    print("Inside the method");
     final String? fromCode = stationCodes[fromStation];
     final String? toCode = stationCodes[toStation];
 
@@ -60,7 +58,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     setState(() {
       isloading = true;
     });
-
+     print("Api calling");
     try {
       var response = await http.post(
         Uri.parse("http://192.168.1.63:10000/api/v1/generate-ticket"),
@@ -69,19 +67,22 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           "source": fromCode,
           "destination": toCode,
           "quantity": tickets.toString(),
-          "productId": journeyType == "One-way" ? "06" : "07"
-          ,
-          "paymentMode" : "UPI"
+          "productId": journeyType == "One-way Journey" ? "06" : "07",
+          "paymentMode": "UPI"
         }),
+
       );
 
       setState(() {
         isloading = false;
       });
+      print("Api is calling");
 
       if (response.statusCode == 200) {
+        print("$response");
         var data = json.decode(response.body);
         final qrString = data['qrData'];
+        print("qrString is :$qrString");
 
         Navigator.push(
           context,
@@ -91,13 +92,14 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               toStation: toStation,
               journeyType: journeyType,
               tickets: tickets,
-              qrData: qrString, // ✅ pass QR string
+              qrData: qrString,
             ),
           ),
         );
       } else {
         print("Server Error: ${response.body}");
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>TicketFailedScreen()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => TicketFailedScreen()));
       }
     } catch (e) {
       setState(() {
@@ -109,8 +111,6 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       );
     }
   }
-
-
 
   final List<String> stations = [
     "Sikandra",
@@ -156,15 +156,15 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: Colors.white,
-            title: const Text("Invalid Selection"),
-            content: const Text("From and To stations cannot be the same."),
+            backgroundColor: Theme.of(context).dialogBackgroundColor,
+            title: Text("Invalid Selection", style: Theme.of(context).textTheme.titleLarge),
+            content: Text("From and To stations cannot be the same.", style: Theme.of(context).textTheme.bodyMedium),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text("OK"),
+                child: Text("OK", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
               ),
             ],
           );
@@ -175,285 +175,292 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     return true;
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Journey Card
-              Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: Card(
-                  color: Colors.orange,
-                  child: Padding(
-                    padding: const EdgeInsets.all(37.0),
-                    child: Column(
-                      children: [
-                        // White card section
-                        Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            children: [
-                              DropdownButtonFormField<String>(
-                                dropdownColor: Colors.white,
-                                value: fromStation,
-                                decoration: const InputDecoration(labelText: "From"),
-
-                                items: stations
-                                    .map((station) => DropdownMenuItem(
-                                  value: station,
-                                  child: Text(station),
-                                ))
-                                    .toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    fromStation = val!;
-                                    _validateStations();
-                                  });
-                                },
-                              ),
-
-                              const SizedBox(height: 10),
-                              DropdownButtonFormField<String>(
-                                dropdownColor: Colors.white,
-                                value: toStation,
-                                decoration: const InputDecoration(labelText: "To"),
-                                items: stations
-                                    .map((station) => DropdownMenuItem(
-                                  value: station,
-                                  child: Text(station),
-                                ))
-                                    .toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    toStation = val!;
-                                    _validateStations();
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 1),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        "Number of tickets",
-                                        style: TextStyle(fontSize: 11),
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              if (tickets > 1) {
-                                                setState(() {
-                                                  tickets--;
-                                                });
-                                              }
-                                            },
-                                            icon: const Icon(Icons.remove_circle_outline),
-                                            padding: EdgeInsets.zero, // Remove extra padding
-                                            constraints: BoxConstraints(), // Remove default button constraints
-                                          ),
-                                          Text("$tickets"),
-                                          IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                tickets++;
-                                              });
-                                            },
-                                            icon: const Icon(Icons.add_circle_outline),
-                                            padding: EdgeInsets.zero,
-                                            constraints: BoxConstraints(),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Journey type
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Radio(
-                                            activeColor: Colors.orange,
-                                            value: "One-way Journey",
-                                            groupValue: journeyType,
-                                            onChanged: (val) {
-                                              setState(() {
-                                                journeyType = val.toString();
-                                              });
-                                            },
-                                          ),
-                                          const Text("One-way Journey"),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Radio(
-                                            activeColor: Colors.orange,
-                                            value: "Return Journey Ticket",
-                                            groupValue: journeyType,
-                                            onChanged: (val) {
-                                              setState(() {
-                                                journeyType = val.toString();
-                                              });
-                                            },
-                                          ),
-                                          const Text("Return Journey"),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Journey Card
+            Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: Card(
+                color: colorScheme.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(37.0),
+                  child: Column(
+                    children: [
+                      // White card section
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: colorScheme.background,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-
-                        const SizedBox(height: 12),
-
-                        Container(
-                          padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40),
-                              bottomLeft: Radius.circular(40),
-                              bottomRight: Radius.circular(40),
+                        child: Column(
+                          children: [
+                            DropdownButtonFormField<String>(
+                              dropdownColor: colorScheme.background,
+                              value: fromStation,
+                              decoration: InputDecoration(
+                                labelText: "From",
+                                labelStyle: textTheme.bodyMedium,
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: colorScheme.primary),
+                                ),
+                              ),
+                              items: stations
+                                  .map((station) => DropdownMenuItem(
+                                value: station,
+                                child: Text(station, style: textTheme.bodyMedium),
+                              ))
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  fromStation = val!;
+                                  _validateStations();
+                                });
+                              },
                             ),
-                          ),
-                          child: Row(
-                            children:[
-                              //Left side total fare
-                              Expanded(
-                                child: Container(
-                                // padding: EdgeInsets.all(10),
+                            const SizedBox(height: 10),
+                            DropdownButtonFormField<String>(
+                              dropdownColor: colorScheme.background,
+                              value: toStation,
+                              decoration: InputDecoration(
+                                labelText: "To",
+                                labelStyle: textTheme.bodyMedium,
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: colorScheme.primary),
+                                ),
+                              ),
+                              items: stations
+                                  .map((station) => DropdownMenuItem(
+                                value: station,
+                                child: Text(station, style: textTheme.bodyMedium),
+                              ))
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  toStation = val!;
+                                  _validateStations();
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 1),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Number of tickets",
+                                      style: textTheme.bodySmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            if (tickets > 1) {
+                                              setState(() {
+                                                tickets--;
+                                              });
+                                            }
+                                          },
+                                          icon: Icon(Icons.remove_circle_outline, color: colorScheme.primary),
+                                          padding: EdgeInsets.zero,
+                                          constraints: BoxConstraints(),
+                                        ),
+                                        Text("$tickets", style: textTheme.bodyMedium),
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              tickets++;
+                                            });
+                                          },
+                                          icon: Icon(Icons.add_circle_outline, color: colorScheme.primary),
+                                          padding: EdgeInsets.zero,
+                                          constraints: BoxConstraints(),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
+                                // Journey type
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Radio(
+                                          // activeColor: colorScheme.onPrimary,
+                                          value: "One-way Journey",
+                                          groupValue: journeyType,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              journeyType = val.toString();
+                                            });
+                                          },
+                                        ),
+                                        Text(
+                                          "One-way Journey",
+                                          // style: textTheme.bodyMedium?.copyWith(color: colorScheme.onPrimary),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Radio(
+                                          // activeColor: colorScheme.onPrimary,
+                                          value: "Return Journey Ticket",
+                                          groupValue: journeyType,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              journeyType = val.toString();
+                                            });
+                                          },
+                                        ),
+                                        Text(
+                                          "Return Journey",
+                                          // style: textTheme.bodyMedium?.copyWith(color: colorScheme.onPrimary),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                        decoration: BoxDecoration(
+                          color: colorScheme.background,
+                          borderRadius: const BorderRadius.all(Radius.circular(40)),
+                        ),
+                        child: Row(
+                          children: [
+                            //Left side total fare
+                            Expanded(
+                              child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: colorScheme.background,
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Total Fare",
-                                    style:TextStyle(fontSize: 14,color: Colors.black,fontWeight: FontWeight.w600)
+                                    Text(
+                                      "Total Fare",
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: colorScheme.onBackground,
                                       ),
-                                    SizedBox(height: 4),
-                                    Text("₹ 30.00",style:TextStyle(fontSize: 20,fontWeight: FontWeight.bold, color: Colors.black
                                     ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "₹ 30.00",
+                                      style: textTheme.headlineSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onBackground,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.black,
-                                      padding: EdgeInsets.symmetric(vertical: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:BorderRadiusGeometry.circular(30),
-                                        side: BorderSide(color: Colors.orange)
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    onPressed: (){
-
-                                     if(_validateStations()){
-                                       sendTicketRequest();
-                                       // Navigator.push(context, MaterialPageRoute(builder: (context)=>TicketSuccesScreen(
-                                       //   fromStation: fromStation,       // ✅ passed value
-                                       //   toStation: toStation,           // ✅ passed value
-                                       //   journeyType: journeyType,       // ✅ passed value
-                                       //   tickets: tickets,
-                                       //   qrData:qrData,
-                                       // )));
-                                     }
-
-                                      },
-                                  icon: Icon(
-                                    Icons.confirmation_num,color: Colors.orange,
-                                    size: 28,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorScheme.background,
+                                  foregroundColor: colorScheme.primary,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    side: BorderSide(color: colorScheme.primary),
                                   ),
-                                    label:Text("By QR Tickets",
-
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black
-                                      ),
-                                    ),
+                                  elevation: 0,
                                 ),
-
+                                onPressed: () {
+                                  if (_validateStations()) {
+                                    sendTicketRequest();
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.confirmation_num,
+                                  color: colorScheme.primary,
+                                  size: 28,
+                                ),
+                                label: Text(
+                                  "Buy QR Tickets",
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
                               ),
-
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
 
-              // Transactions
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Latest Transactions",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    ...transactions.map((t) {
-                      return Card(
-                        color: t["type"] == "use" ? Colors.green.shade100 : Colors.grey.shade200,
-                        child: ListTile(
-                          leading: Icon(
-                            t["type"] == "use"
-                                ? Icons.qr_code_scanner
-                                : Icons.check_circle_outline,
-                            color: Colors.orange,
-                          ),
-                          title: Text(t["detail"]!),
-                          subtitle: Text(t["date"]!),
+            // Transactions
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Latest Transactions",
+                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  ...transactions.map((t) {
+                    return Card(
+                      color: t["type"] == "use"
+                          ? colorScheme.secondary.withOpacity(0.2)
+                          : colorScheme.surfaceVariant.withOpacity(0.3),
+                      child: ListTile(
+                        leading: Icon(
+                          t["type"] == "use" ? Icons.qr_code_scanner : Icons.check_circle_outline,
+                          color: colorScheme.primary,
                         ),
-                      );
-                    }),
-                    const SizedBox(height: 10),
-                    const Center(
-                      child: Text(
-                        "Show more",
-                        style: TextStyle(color: Colors.orange),
+                        title: Text(t["detail"]!, style: textTheme.bodyMedium),
+                        subtitle: Text(t["date"]!, style: textTheme.bodySmall),
                       ),
+                    );
+                  }),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Text(
+                      "Show more",
+                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.primary),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
-
 }

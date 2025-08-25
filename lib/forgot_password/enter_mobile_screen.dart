@@ -15,32 +15,42 @@ class _EnterMobileScreenState extends State<EnterMobileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final textColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
-          key: _formKey, // 🔑 Important for validation
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              const Text(
+              Text(
                 "Please enter your mobile number to reset your password",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 30),
+
+              // Phone input
               TextFormField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
+                style: TextStyle(color: textColor),
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.phone_android),
+                  prefixIcon: Icon(Icons.phone_android, color: primaryColor),
                   hintText: "+91 1234-56789",
+                  hintStyle: TextStyle(color: Colors.grey.shade600),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                    borderSide: BorderSide(color: primaryColor, width: 2),
                   ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange, width: 2),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: primaryColor, width: 2),
                   ),
                 ),
                 inputFormatters: [
@@ -56,45 +66,67 @@ class _EnterMobileScreenState extends State<EnterMobileScreen> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(style:ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+
+              // Send OTP Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
-                  ) ,
-                      onPressed: (){
-                        if (_formKey.currentState!.validate()) {
-                          // ✅ Valid input
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Sending OTP to ${phoneController.text}')),
-                          );
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>OtpVerifyScreen()),);
-                        }else{
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Field is required')),
-                          );
-                        }
-
-                      }, child: Text("Send SMS Code",style: TextStyle(fontSize: 18,color: Colors.white),
-                      ),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Sending OTP to ${phoneController.text}')),
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => OtpVerifyScreen()),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Field is required')),
+                      );
+                    }
+                  },
+                  child: const Text(
+                    "Send SMS Code",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
-                 SizedBox(height: 20),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Cancel Button
               SizedBox(
                 width: double.infinity,
                 height: 45,
-                child: OutlinedButton(style: OutlinedButton.styleFrom(
-                    shape:RoundedRectangleBorder(borderRadius: BorderRadius.circular(25),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                  side: BorderSide(color: Colors.orange),
-                ),onPressed: (){
-                  Navigator.pop(context);
-                }, child: Text("Cancel",style: TextStyle(fontSize: 16,color: Colors.black),)),
-                
+                    side: BorderSide(color: primaryColor),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
