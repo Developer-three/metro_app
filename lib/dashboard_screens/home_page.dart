@@ -277,7 +277,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                               });
                                             }
                                           },
-                                          icon: Icon(Icons.remove_circle_outline, color: colorScheme.primary),
+                                                       icon: Icon(Icons.remove_circle_outline, color: colorScheme.primary),
                                           padding: EdgeInsets.zero,
                                           constraints: BoxConstraints(),
                                         ),
