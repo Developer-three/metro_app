@@ -230,7 +230,7 @@ class _ProfileMenuScreenState extends State<ProfileMenuScreen> {
               style: theme.textTheme.bodyLarge,
             ),
           ),
-          Icon(Icons.edit, size: 20, color: theme.iconTheme.color),
+          Icon(Icons.edit, size: 20, color: theme.iconTheme.color,),
         ],
       ),
     );

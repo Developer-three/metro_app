@@ -253,42 +253,44 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               /// Transactions list
               ...[
                 ...usedTickets.reversed.take(5).map((ticket) {
-                  return InkWell(
-                    child: Card(
-                      color: AppTheme.secondaryColor,
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.check_circle_outline,
-                          color: Theme
-                              .of(context)
-                              .colorScheme
-                              .primary,
+                  return Card(
+                    elevation: 5,
+                    color: AppTheme.secondaryColor,
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.check_circle_outline,
+                        color: Theme
+                            .of(context)
+                            .colorScheme
+                            .primary,
+                      ),
+                      title: Text(
+                        "${ticket.fromStation} - to\n${ticket
+                            .toStation}\n${ticket.validTill}",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodySmall,
+                      ),
+                      subtitle: Text(
+                        "Price: 30.00",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
-                        title: Text(
-                          " Ticket from ${ticket.fromStation} to ${ticket
-                              .toStation}",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodyMedium,
-                        ),
-                        subtitle: Text(
-                          "Used on: ${ticket.validTill}",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall,
-                        ),
-                        trailing: Text(
-                          "Price: 30.00\nNo:${ticket.ticketId}",
-
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                      ),
+                      trailing: Text(
+                        "Order ID:${ticket.orderId}\n"
+                            "Trans ID:${ticket.transactionId}\n"
+                            "Ticket Id:${ticket.ticketId}",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),

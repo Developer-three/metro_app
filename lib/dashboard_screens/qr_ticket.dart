@@ -156,7 +156,7 @@ class _QRTicketScreenState extends State<QRTicketScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Valid till: $validTill", // ✅ CHANGED
+                            "Issue Date-time: $validTill", // ✅ CHANGED
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -165,7 +165,7 @@ class _QRTicketScreenState extends State<QRTicketScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Ticket No: ${widget.ticketId}",
+                            "Ticket ID: ${widget.ticketId}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,

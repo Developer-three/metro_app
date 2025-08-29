@@ -487,15 +487,16 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             title: Text(
-                              " Ticket from ${ticket.fromStation} to ${ticket.toStation}",
+                              "${ticket.fromStation} to ${ticket.toStation}",
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             subtitle: Text(
-                              "Used on: ${ticket.validTill}",
+                              "Issue Date-time: ${ticket.validTill}\nPrice: 30.00",
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             trailing: Text(
-                              "Price: 30.00\nNo:${ticket.ticketId}",
+                              "Ticket ID:${ticket.ticketId}\n"
+                                  "Trans ID:${ticket.transactionId}\nOrder ID:${ticket.orderId}",
 
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w500,

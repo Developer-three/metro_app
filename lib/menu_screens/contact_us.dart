@@ -108,6 +108,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   );
                   setState(() {
                     messageController.clear();
+                    subjectController.clear();
                   });
                 }
                     : null,

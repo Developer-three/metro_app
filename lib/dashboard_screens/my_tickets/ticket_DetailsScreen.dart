@@ -60,7 +60,7 @@ class TicketDetailsScreen extends StatelessWidget {
                               Icon(Icons.location_pin, size: 20, color: colorScheme.primary),
                               const SizedBox(width: 6),
                               Text(
-                                ticket.fromStation,
+                                "Source - ${ticket.fromStation}",
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface,
@@ -74,7 +74,7 @@ class TicketDetailsScreen extends StatelessWidget {
                               Icon(Icons.location_pin, size: 20, color: colorScheme.primary),
                               const SizedBox(width: 6),
                               Text(
-                                ticket.toStation,
+                                "Destination - ${ticket.toStation}",
                                 style: textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
                                   color: colorScheme.onSurface,
@@ -102,7 +102,7 @@ class TicketDetailsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Valid till: ${ticket.validTill}",
+                            "Issue Date-Time: ${ticket.validTill}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,
@@ -111,7 +111,26 @@ class TicketDetailsScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Ticket No: ${ticket.ticketId}",
+                            "Ticket ID: ${ticket.ticketId}",
+                            style: textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                              wordSpacing: 2,
+                            ),
+
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Transaction ID: ${ticket.transactionId}",
+                            style: textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                              wordSpacing: 2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Order ID: ${ticket.orderId}",
                             style: textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onSurface,

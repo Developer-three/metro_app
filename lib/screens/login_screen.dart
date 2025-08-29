@@ -5,7 +5,6 @@ import 'package:task_metro/forgot_password/enter_mobile_screen.dart';
 import 'package:task_metro/screens/signup_screen.dart';
 import '../dashboard_screens/bottom_navigation.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -26,13 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _phoneController.addListener(_validateForm);
     _passwordController.addListener(_validateForm);
-
   }
 
   void _validateForm() {
     setState(() {
       isButtonActive =
-          _phoneController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+          _phoneController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty;
     });
   }
 
@@ -45,22 +44,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<bool> _onWillPop() async {
     return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Exit App"),
-        content: const Text("Are you sure you want to exit the app?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Cancel"),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Exit App"),
+            content: const Text("Are you sure you want to exit the app?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Exit"),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("Exit"),
-          ),
-        ],
-      ),
-    ) ??
+        ) ??
         false;
   }
 
@@ -82,9 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo
                 Center(
                   child: Column(
-                    children: [
-                      Image.asset("assets/upmrc.png", height: 100),
-                    ],
+                    children: [Image.asset("assets/UPMRC1.png", height: 100)],
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -106,8 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(color: theme.textTheme.bodyLarge?.color),
                   controller: _phoneController,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.phone_android_outlined,
-                        color: theme.primaryColor),
+                    prefixIcon: Icon(
+                      Icons.phone_android_outlined,
+                      color: theme.primaryColor,
+                    ),
                     hintText: "+91 xxxx - nnnnnnn",
                   ),
                   keyboardType: TextInputType.phone,
@@ -125,8 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock_outline,
-                        color: theme.primaryColor),
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: theme.primaryColor,
+                    ),
                     hintText: "Password",
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -174,15 +175,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ElevatedButton(
                     onPressed: isButtonActive
                         ? () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GNavigation(
-                            selectedIndex: 0,
-                          ),
-                        ),
-                      );
-                    }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GNavigation(selectedIndex: 0),
+                              ),
+                            );
+                          }
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isButtonActive
@@ -206,7 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(
                       "Not a member yet",
-                      style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                      style: TextStyle(
+                        color: theme.textTheme.bodyMedium?.color,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     OutlinedButton(
@@ -220,7 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 14),
+                          horizontal: 40,
+                          vertical: 14,
+                        ),
                         side: BorderSide(color: theme.primaryColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
