@@ -9,7 +9,7 @@ import 'home_page.dart';
 
 class GNavigation extends StatefulWidget {
   final int selectedIndex;
-  GNavigation({super.key, required this.selectedIndex});
+  GNavigation({super.key, required this.selectedIndex,});
 
   @override
   State<StatefulWidget> createState() => _GNavigationState();
@@ -20,39 +20,23 @@ class _GNavigationState extends State<GNavigation> {
 
   Future<bool> _onWillPop() async {
     return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            // backgroundColor: Colors.white,
-            title: Text(
-              "Exit App",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            content: Text(
-              "Are you sure you want to exit the app?",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Don't exit
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // Exit app
-                child: Text(
-                  "Exit",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
+      context: context,
+      builder: (context) => AlertDialog(
+        // backgroundColor: Colors.white,
+        title: Text("Exit App", style: Theme.of(context).textTheme.titleLarge),
+        content: Text("Are you sure you want to exit the app?", style: Theme.of(context).textTheme.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false), // Don't exit
+            child: Text("Cancel", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           ),
-        ) ??
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true), // Exit app
+            child: Text("Exit", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          ),
+        ],
+      ),
+    ) ??
         false; // return false if dialog is dismissed
   }
 
