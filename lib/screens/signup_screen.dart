@@ -55,7 +55,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 // First Name
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: _inputDecoration("First Name", Icons.person_outline, theme),
+                  decoration: _inputDecoration(
+                    "First Name",
+                    Icons.person_outline,
+                    theme,
+                  ),
                   keyboardType: TextInputType.name,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -75,7 +79,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Last Name
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: _inputDecoration("Last Name", Icons.person, theme),
+                  decoration: _inputDecoration(
+                    "Last Name",
+                    Icons.person,
+                    theme,
+                  ),
                   keyboardType: TextInputType.name,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -104,8 +112,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Phone number is required';
-                    } else if (value.length != 10) {
-                      return 'Phone number must be 10 digits';
+                    } else if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
+                      return 'Enter a valid 10 digit phone number';
                     }
                     return null;
                   },
@@ -115,7 +123,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Email
                 TextFormField(
                   controller: _emailController,
-                  decoration: _inputDecoration("Email", Icons.email_outlined, theme),
+                  decoration: _inputDecoration(
+                    "Email",
+                    Icons.email_outlined,
+                    theme,
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -179,15 +191,19 @@ class _SignupScreenState extends State<SignupScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                            backgroundColor: Colors.green.shade700, // success green color
+                            backgroundColor:
+                                Colors.green.shade700, // success green color
                             behavior: SnackBarBehavior.floating,
-                            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                           ),
                         );
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => OTPScreen()));
+                          context,
+                          MaterialPageRoute(builder: (_) => OTPScreen()),
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -201,7 +217,10 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             backgroundColor: colorScheme.error,
                             behavior: SnackBarBehavior.floating,
-                            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                           ),
                         );
                       }
@@ -242,11 +261,15 @@ class _SignupScreenState extends State<SignupScreen> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const LoginScreen()),
+                              builder: (context) => const LoginScreen(),
+                            ),
                           );
                         },
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: colorScheme.primary, width: 2),
+                          side: BorderSide(
+                            color: colorScheme.primary,
+                            width: 2,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -270,8 +293,12 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon, ThemeData theme,
-      {Widget? suffixIcon}) {
+  InputDecoration _inputDecoration(
+    String hint,
+    IconData icon,
+    ThemeData theme, {
+    Widget? suffixIcon,
+  }) {
     final colorScheme = theme.colorScheme;
     return InputDecoration(
       prefixIcon: Icon(icon, color: colorScheme.primary),

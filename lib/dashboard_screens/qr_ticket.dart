@@ -41,9 +41,9 @@ class _QRTicketScreenState extends State<QRTicketScreen> {
     super.initState();
 
     // ✅ CHANGED: use formatted date (DD.MM.YYYY) instead of ISO string
-    final now = DateTime.now();
+    // final now = DateTime.now();
     validTill = DateFormat('dd-MM-yyyy HH:mm')
-        .format(DateTime.now().add(const Duration(seconds: 10)));
+        .format(DateTime.now().add(const Duration(seconds: 30)));
 
     _saveTicket();
   }

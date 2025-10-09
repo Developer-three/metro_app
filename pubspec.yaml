@@ -16,13 +16,15 @@ dependencies:
   path_provider: ^2.1.2
   intl: ^0.18.1
   cupertino_icons: ^1.0.8
+  connectivity_plus: ^5.0.2
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.4.6
 
 
 
@@ -32,8 +34,21 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/upmrc.png"
-  adpative_icons_background: "#FFA500"
-  adaptive_icon_foreground: "assets/logo_foreground.png"
+
+
+
+
+flutter_native_splash:
+  color: "#FFA500"  # Match this with your custom splash background color
+  image: assets/Applogo.png
+  image_dark: assets/Applogo.png
+  fullscreen: true
+
+  android_12:
+    color: "#FFA500"
+    image: assets/Applogo.png
+
+
 
 flutter:
   uses-material-design: true

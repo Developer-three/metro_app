@@ -14,7 +14,8 @@ class MyTicketsScreen extends StatefulWidget {
   State<MyTicketsScreen> createState() => _MyTicketsScreenState();
 }
 
-class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProviderStateMixin {
+class _MyTicketsScreenState extends State<MyTicketsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<TicketModel> availableTickets = [];
   List<TicketModel> allTickets = [];
@@ -27,7 +28,10 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     _tabController = TabController(length: 2, vsync: this);
     _loadTicketsFromDB();
 
-    _ticketExpiryTimer = Timer.periodic(const Duration(seconds: 10), (_) => _checkExpiredTickets());
+    _ticketExpiryTimer = Timer.periodic(
+      const Duration(seconds: 40),
+          (_) => _checkExpiredTickets(),
+    );
   }
 
   @override
@@ -37,7 +41,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
   }
 
   Future<void> _loadTicketsFromDB() async {
-    availableTickets = await TicketDatabase.instance.fetchTickets(isUsed: false);
+    availableTickets = await TicketDatabase.instance.fetchTickets(
+      isUsed: false,
+    );
     usedTickets = await TicketDatabase.instance.fetchTickets(isUsed: true);
     allTickets = await TicketDatabase.instance.getAllTickets();
 
@@ -52,7 +58,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
 
     final expired = availableTickets.where((ticket) {
       try {
-        // *** FIX: Use DateTime.parse directly instead of split ***
+        // *** Fix: Ensure date parsing works correctly ***
         final expiry = DateFormat('yyyy-MM-dd HH:mm').parse(ticket.validTill);
         return expiry.isBefore(now);
       } catch (e) {
@@ -62,11 +68,16 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     }).toList();
 
     for (var ticket in expired) {
-      await TicketDatabase.instance.updateTicketUsage(ticket.transactionId, true);
-      availableTickets.remove(ticket);
-      usedTickets.add(ticket);
+      // *** Fix: Update usage in database and refresh state ***
+      await TicketDatabase.instance.updateTicketUsage(
+        ticket.transactionId,
+        true,
+      );
+      setState(() {
+        availableTickets.remove(ticket);
+        usedTickets.add(ticket);
+      });
     }
-    setState(() {});
   }
 
   @override
@@ -87,13 +98,24 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.info_outline, size: 60, color: colorScheme.primary.withOpacity(0.4)),
+            Icon(
+              Icons.info_outline,
+              size: 60,
+              color: colorScheme.primary.withOpacity(0.4),
+            ),
             const SizedBox(height: 16),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 10),
-            Text("Need tickets?", style: textTheme.bodyMedium?.copyWith(color: colorScheme.secondary)),
+            Text(
+              "Need tickets?",
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.secondary,
+              ),
+            ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
               onPressed: () {
@@ -113,9 +135,12 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 24,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -150,20 +175,41 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(ticket.fromStation, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  ticket.fromStation,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const Icon(Icons.arrow_downward, size: 20),
-                Text(ticket.toStation, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  ticket.toStation,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             // Right
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("Status: ${ticket.isUsed == 1 ? "Used" : "Unused"}",
-                    style: textTheme.bodySmall),
-                Text(ticket.journeyType, style: textTheme.bodyMedium?.copyWith(fontSize: 12)),
-                 Text("Valid Till: ${ticket.validTill}", style: textTheme.bodySmall),
-                 Text("Ticket No: ${ticket.ticketId}", style: textTheme.bodySmall),
+                Text(
+                  "Status: ${ticket.isUsed == 1 ? "Used" : "Unused"}",
+                  style: textTheme.bodySmall,
+                ),
+                Text(
+                  ticket.journeyType,
+                  style: textTheme.bodyMedium?.copyWith(fontSize: 12),
+                ),
+                Text(
+                  "Valid Till: ${ticket.validTill}",
+                  style: textTheme.bodySmall,
+                ),
+                Text(
+                  "Ticket No: ${ticket.ticketId}",
+                  style: textTheme.bodySmall,
+                ),
               ],
             ),
           ],
@@ -200,7 +246,10 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
           unselectedLabelColor: colorScheme.onPrimary,
           labelStyle: textTheme.labelLarge,
           unselectedLabelStyle: textTheme.bodyMedium,
-          indicatorPadding: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
+          indicatorPadding: const EdgeInsets.symmetric(
+            horizontal: 1,
+            vertical: 5,
+          ),
           tabs: const [
             SizedBox(width: 180, child: Tab(text: "Available Tickets")),
             SizedBox(width: 160, child: Tab(text: "Used Tickets")),
@@ -213,15 +262,21 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
           availableTickets.isNotEmpty
               ? ListView.builder(
             itemCount: availableTickets.length,
-            itemBuilder: (context, index) => _buildTicketCard(availableTickets[index]),
+            itemBuilder: (context, index) =>
+                _buildTicketCard(availableTickets[index]),
           )
-              : _buildEmptyTicketMessage("You have no available tickets at the moment."),
+              : _buildEmptyTicketMessage(
+            "You have no available tickets at the moment.",
+          ),
           usedTickets.isNotEmpty
               ? ListView.builder(
             itemCount: usedTickets.length,
-            itemBuilder: (context, index) => _buildTicketCard(usedTickets[index]),
+            itemBuilder: (context, index) =>
+                _buildTicketCard(usedTickets[index]),
           )
-              : _buildEmptyTicketMessage("You have no used tickets at the moment."),
+              : _buildEmptyTicketMessage(
+            "You have no used tickets at the moment.",
+          ),
         ],
       ),
     );

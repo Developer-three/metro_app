@@ -139,16 +139,15 @@ class _TicketSuccesScreenState extends State<TicketSuccesScreen> {
                 const SizedBox(height: 20),
 
                 // ✅ Close text button
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    "Close",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      decoration: TextDecoration.underline,
-                      color: colorScheme.onSurface.withOpacity(0.8),
-                    ),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () => Navigator.pop(context),
+                //   child: Text(
+                //     "Close",
+                //     style: theme.textTheme.bodyMedium?.copyWith(
+                //       decoration: TextDecoration.underline,
+                //       color: colorScheme.onSurface.withOpacity(0.8),
+                //     ),
+                //   ),
               ],
             ),
           ),

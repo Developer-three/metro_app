@@ -26,24 +26,17 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     Center(child: Text("Line Map")),
     Center(child: Text("Menu")),
   ];
-  String fromStation = "Sikandra";
-  String toStation = "Hing ki Mandi";
+  String fromStation = "Gandhi Nagar";
+  String toStation = "Super Corridor 6";
   int tickets = 1;
   String journeyType = "One-way Journey";
 
   final Map<String, String> stationCodes = {
-    "Sikandra": "01",
-    "Ambedkar University": "02",
-    "RBS College": "03",
-    "Raja ki Mandi": "04",
-    "St John’s (Agra University)": "05",
-    "Medical College": "06",
-    "Hing ki Mandi": "07",
-    "Jama Masjid": "08",
-    "Agra Fort": "09",
-    "Taj Mahal": "10",
-    "Sadat Bazar": "11",
-    "Basai": "12",
+    "Gandhi Nagar": "01",
+    "Super Corridor 6": "02",
+    "Super Corridor 5": "03",
+    "Super Corridor 4": "04",
+    "Super Corridor 3": "05",
   };
   bool isloading = false;
 
@@ -53,19 +46,19 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     final String? toCode = stationCodes[toStation];
 
     if (fromCode == null || toCode == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid station selection")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Invalid station selection")));
       return;
     }
 
     setState(() {
       isloading = true;
     });
-     print("Api calling");
+    print("Api calling");
     try {
       var response = await http.post(
-        Uri.parse("http://192.168.1.47:10000/api/v1/generate-ticket"),
+        Uri.parse("http://192.168.1.43:10000/api/v1/generate-ticket"),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
           "source": fromCode,
@@ -74,13 +67,11 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
           "productId": journeyType == "One-way Journey" ? "06" : "07",
           "paymentMode": "UPI",
         }),
-
       );
 
       setState(() {
         isloading = false;
       });
-      print("Api is calling");
 
       if (response.statusCode == 200) {
         print("$response");
@@ -89,7 +80,8 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         final qrString = data['qrData'];
         final transactionId = data['transactionId'];
         final orderId = data['orderId'];
-        final ticketId = data['ticketId']; // Adjust field names based on API response
+        final ticketId =
+            data['ticketId']; // Adjust field names based on API response
 
         print("qrString is :$qrString");
 
@@ -111,7 +103,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
       } else {
         print("Server Error: ${response.body}");
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => TicketFailedScreen()));
+          context,
+          MaterialPageRoute(builder: (context) => TicketFailedScreen()),
+        );
       }
     } catch (e) {
       setState(() {
@@ -125,33 +119,27 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   }
 
   final List<String> stations = [
-    "Sikandra",
-    "Ambedkar University",
-    "RBS College",
-    "Raja ki Mandi",
-    "St John’s (Agra University)",
-    "Medical College",
-    "Hing ki Mandi",
-    "Jama Masjid",
-    "Agra Fort",
-    "Taj Mahal",
-    "Sadat Bazar",
-    "Basai",
+    "Gandhi Nagar",
+    "Super Corridor 6",
+    "Super Corridor 5",
+    "Super Corridor 4",
+    "Super Corridor 3",
   ];
 
-  List<TicketModel> availableTickets=[];
-  List<TicketModel> usedTickets=[];
+  List<TicketModel> availableTickets = [];
+  List<TicketModel> usedTickets = [];
 
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
     _loadTicketsFromDB();
   }
 
   Future<void> _loadTicketsFromDB() async {
-    availableTickets = await TicketDatabase.instance.fetchTickets(isUsed: false);
+    availableTickets = await TicketDatabase.instance.fetchTickets(
+      isUsed: false,
+    );
     usedTickets = await TicketDatabase.instance.fetchTickets(isUsed: true);
-    setState(() {
-    });
+    setState(() {});
   }
 
   bool _validateStations() {
@@ -161,14 +149,25 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Theme.of(context).dialogBackgroundColor,
-            title: Text("Invalid Selection", style: Theme.of(context).textTheme.titleLarge),
-            content: Text("From and To stations cannot be the same.", style: Theme.of(context).textTheme.bodyMedium),
+            title: Text(
+              "Invalid Selection",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            content: Text(
+              "From and To stations cannot be the same.",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text("OK", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ],
           );
@@ -196,7 +195,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               padding: const EdgeInsets.all(0.0),
               child: Card(
                 color: colorScheme.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(37.0),
                   child: Column(
@@ -217,14 +218,21 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                 labelText: "From",
                                 labelStyle: textTheme.bodyMedium,
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: colorScheme.secondary),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.secondary,
+                                  ),
                                 ),
                               ),
                               items: stations
-                                  .map((station) => DropdownMenuItem(
-                                value: station,
-                                child: Text(station, style: textTheme.bodyMedium),
-                              ))
+                                  .map(
+                                    (station) => DropdownMenuItem(
+                                      value: station,
+                                      child: Text(
+                                        station,
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (val) {
                                 setState(() {
@@ -241,14 +249,21 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                 labelText: "To",
                                 labelStyle: textTheme.bodyMedium,
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: colorScheme.primary),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.primary,
+                                  ),
                                 ),
                               ),
                               items: stations
-                                  .map((station) => DropdownMenuItem(
-                                value: station,
-                                child: Text(station, style: textTheme.bodyMedium ),
-                              ))
+                                  .map(
+                                    (station) => DropdownMenuItem(
+                                      value: station,
+                                      child: Text(
+                                        station,
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (val) {
                                 setState(() {
@@ -277,18 +292,27 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                               });
                                             }
                                           },
-                                          icon: Icon(Icons.remove_circle_outline, color: colorScheme.primary),
+                                          icon: Icon(
+                                            Icons.remove_circle_outline,
+                                            color: colorScheme.primary,
+                                          ),
                                           padding: EdgeInsets.zero,
                                           constraints: BoxConstraints(),
                                         ),
-                                        Text("$tickets", style: textTheme.bodyMedium),
+                                        Text(
+                                          "$tickets",
+                                          style: textTheme.bodyMedium,
+                                        ),
                                         IconButton(
                                           onPressed: () {
                                             setState(() {
                                               tickets++;
                                             });
                                           },
-                                          icon: Icon(Icons.add_circle_outline, color: colorScheme.primary),
+                                          icon: Icon(
+                                            Icons.add_circle_outline,
+                                            color: colorScheme.primary,
+                                          ),
                                           padding: EdgeInsets.zero,
                                           constraints: BoxConstraints(),
                                         ),
@@ -351,7 +375,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                         padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
                         decoration: BoxDecoration(
                           color: colorScheme.background,
-                          borderRadius: const BorderRadius.all(Radius.circular(40)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(40),
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -391,10 +417,14 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: colorScheme.background,
                                   foregroundColor: colorScheme.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
-                                    side: BorderSide(color: colorScheme.primary),
+                                    side: BorderSide(
+                                      color: colorScheme.primary,
+                                    ),
                                   ),
                                   elevation: 0,
                                 ),
@@ -434,7 +464,9 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                 children: [
                   Text(
                     "Latest Transactions",
-                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ...[
@@ -443,14 +475,20 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                       final expiry = DateTime.tryParse(ticket.validTill);
                       final isActive = expiry != null && expiry.isAfter(now);
 
-                      return InkWell(onTap: (){
-                        Navigator.push(context,MaterialPageRoute
-                          (builder: (context)=>TicketDetailsScreen(ticket: ticket)));
-                      },
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TicketDetailsScreen(ticket: ticket),
+                            ),
+                          );
+                        },
                         child: Card(
                           color: isActive
                               ? AppTheme.thirdColor
-                              :AppTheme.thirdColor,
+                              : AppTheme.thirdColor,
                           child: ListTile(
                             leading: Icon(
                               Icons.qr_code_scanner,
@@ -466,19 +504,24 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             ),
                             trailing: Text(
                               "Price:30.00\nNo: ${ticket.ticketId}",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
                       );
                     }),
                     ...usedTickets.reversed.take(5).map((ticket) {
-                      return InkWell(onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder:
-                            (context)=>TicketDetailsScreen(ticket: ticket)));
-                      },
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TicketDetailsScreen(ticket: ticket),
+                            ),
+                          );
+                        },
                         child: Card(
                           color: AppTheme.secondaryColor,
                           child: ListTile(
@@ -496,20 +539,18 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                             ),
                             trailing: Text(
                               "Ticket ID:${ticket.ticketId}\n"
-                                  "Trans ID:${ticket.transactionId}\nOrder ID:${ticket.orderId}",
+                              "Trans ID:${ticket.transactionId}\nOrder ID:${ticket.orderId}",
 
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
                       );
                     }),
 
-
-                  const SizedBox(height: 10),
-                 ]
+                    const SizedBox(height: 10),
+                  ],
                 ],
               ),
             ),

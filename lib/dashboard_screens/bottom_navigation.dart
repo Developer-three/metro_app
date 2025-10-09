@@ -6,6 +6,7 @@ import 'package:task_metro/menu_screens/menu_bar.dart';
 import 'package:task_metro/dashboard_screens/my_tickets/tickets_page.dart';
 import 'package:task_metro/theme/app_theme.dart';
 import 'home_page.dart';
+import 'package:flutter/services.dart'; // <-- Needed for SystemNavigator.pop()
 
 class GNavigation extends StatefulWidget {
   final int selectedIndex;
@@ -19,41 +20,33 @@ class _GNavigationState extends State<GNavigation> {
   late int _selectedIndex;
 
   Future<bool> _onWillPop() async {
-    return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            // backgroundColor: Colors.white,
-            title: Text(
-              "Exit App",
-              style: Theme.of(context).textTheme.titleLarge,
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Exit App", style: Theme.of(context).textTheme.titleLarge),
+        content: Text(
+          "Are you sure you want to exit the app?",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
-            content: Text(
-              "Are you sure you want to exit the app?",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false), // Don't exit
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // Exit app
-                child: Text(
-                  "Exit",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
           ),
-        ) ??
-        false; // return false if dialog is dismissed
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              "Exit",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+    return shouldExit ?? false;
   }
 
   @override
@@ -74,8 +67,16 @@ class _GNavigationState extends State<GNavigation> {
       ProfileMenuScreen(),
     ];
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false, // Block back press by default
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          final shouldExit = await _onWillPop();
+          if (shouldExit) {
+            SystemNavigator.pop(); // Actually exit app
+          }
+        }
+      },
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: _screens[_selectedIndex],
